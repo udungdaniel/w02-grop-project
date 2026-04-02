@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import Navbar from "../components/Navbar";
 import "./globals.css";
 
@@ -6,10 +7,17 @@ export const metadata = {
   description: "Marketplace for handmade crafts",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+type RootLayoutProps = {
+  children: ReactNode;
+};
+
+export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Navbar />
+        {children}
+      </body>
     </html>
   );
 }
