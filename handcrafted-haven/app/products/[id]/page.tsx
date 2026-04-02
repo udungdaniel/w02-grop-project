@@ -1,6 +1,6 @@
 import React from "react";
-import { products } from "../../data/products"; // import your products data
-import ProductCard from "../../components/ProductCard";
+import { products } from "../../data/products";
+import ProductCard from "../../../components/ProductCard";
 
 interface Product {
   id: string | number;
