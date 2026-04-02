@@ -6,16 +6,10 @@ export const metadata = {
   description: "Marketplace for handmade crafts",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-
-        <Navbar />
-
-        {children}
-
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
