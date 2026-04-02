@@ -1,4 +1,12 @@
 import React from "react";
+import { products } from "../../data/products"; // import your products data
+import ProductCard from "../../components/ProductCard";
+
+interface Product {
+  id: string | number;
+  name: string;
+  price: number;
+}
 
 interface ProductDetailsProps {
   params: {
@@ -9,10 +17,15 @@ interface ProductDetailsProps {
 const ProductDetails: React.FC<ProductDetailsProps> = ({ params }) => {
   const { id } = params;
 
+  // Find the product by id
+  const product = products.find((p) => p.id.toString() === id);
+
+  if (!product) return <div>Product not found</div>;
+
   return (
-    <div>
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
       <h1>Product Details</h1>
-      <p>Product ID: {id}</p>
+      <ProductCard product={product} />
     </div>
   );
 };

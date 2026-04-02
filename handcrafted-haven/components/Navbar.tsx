@@ -4,9 +4,9 @@ import Link from "next/link";
 
 const Navbar: React.FC = () => {
   return (
-    <nav>
+    <nav style={{ padding: "20px", fontFamily: "Arial" }}>
       <h2>Handcrafted Haven</h2>
-      <ul>
+      <ul style={{ listStyle: "none", display: "flex", gap: "15px", padding: 0 }}>
         <li>
           <Link href="/">Home</Link>
         </li>
