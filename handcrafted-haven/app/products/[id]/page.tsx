@@ -1,13 +1,18 @@
 import React from "react";
-import { products, Product, Review } from "../../data/products";
+import { products, Review } from "../../data/products";
 import ProductCard from "../../../components/ProductCard";
 
-interface ProductDetailsProps {
-  params: { id: string };
-}
+// 1. Update the type definition for params as a Promise
+export default async function ProductDetails({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}) {
+  // 2. Await the params before using them
+  const { id } = await params;
 
-export default function ProductDetails({ params }: ProductDetailsProps) {
-  const product = products.find((p) => p.id === params.id);
+  // 3. Use the unwrapped id to find the product
+  const product = products.find((p) => p.id === id);
 
   if (!product) {
     return (
@@ -42,14 +47,15 @@ export default function ProductDetails({ params }: ProductDetailsProps) {
         }}
       >
         <h2>Seller Info</h2>
-        <p><strong>{product.seller.name}</strong></p>
+        <p>
+          <strong>{product.seller.name}</strong>
+        </p>
         <p>{product.seller.bio ?? "No bio available."}</p>
       </section>
 
       {/* Reviews */}
       <section style={{ marginTop: "40px" }}>
         <h2>Reviews</h2>
-
         {product.reviews && product.reviews.length > 0 ? (
           product.reviews.map((review: Review, idx: number) => (
             <div
