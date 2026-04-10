@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import Navbar from "../components/Navbar";
+import Footer from "../components/footer";
 import "./globals.css";
 
 export const metadata = {
@@ -7,16 +8,17 @@ export const metadata = {
   description: "Marketplace for handmade crafts",
 };
 
-type RootLayoutProps = {
+interface RootLayoutProps {
   children: ReactNode;
-};
+}
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body>
         <Navbar />
-        {children}
+        <main>{children}</main>
+        <Footer />
       </body>
     </html>
   );

@@ -1,80 +1,87 @@
-import React from "react";
-import { products, Review } from "../../data/products";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { products as defaultProducts, Product } from "../../data/products";
 import ProductCard from "../../../components/ProductCard";
+import ProductReviews from "@/components/ProductReviews";
 
-// 1. Update the type definition for params as a Promise
-export default async function ProductDetails({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
-}) {
-  // 2. Await the params before using them
-  const { id } = await params;
+export default function ProductDetails() {
+  const params = useParams();
+  const productId = params?.id;
 
-  // 3. Use the unwrapped id to find the product
-  const product = products.find((p) => p.id === id);
+  const [product, setProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    if (!productId) return;
+
+    // Load products added by sellers from localStorage
+    const storedProducts = localStorage.getItem("products");
+    let sellerProducts: Product[] = [];
+    if (storedProducts) {
+      try {
+        sellerProducts = JSON.parse(storedProducts);
+      } catch (err) {
+        console.error("Error parsing localStorage products:", err);
+      }
+    }
+
+    // Merge default + seller products
+    const allProducts = [...defaultProducts, ...sellerProducts];
+
+    // Find product by id
+    const found = allProducts.find((p) => String(p.id) === String(productId));
+    setProduct(found || null);
+  }, [productId]);
 
   if (!product) {
     return (
-      <div style={{ padding: "20px", fontFamily: "Arial" }}>
-        Product not found
+      <div style={styles.container}>
+        <h2>Product not found</h2>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        padding: "20px",
-        fontFamily: "Arial",
-        maxWidth: "800px",
-        margin: "0 auto",
-      }}
-    >
-      {/* Product Info */}
-      <h1>{product.name}</h1>
-      {product.description && <p>{product.description}</p>}
-      <ProductCard product={product} />
+    <div style={styles.container}>
+      <h1 style={styles.title}>{product.name}</h1>
 
-      {/* Seller Info */}
-      <section
-        style={{
-          marginTop: "40px",
-          padding: "15px",
-          border: "1px solid #ddd",
-          borderRadius: "8px",
-          backgroundColor: "#f9f9f9",
-        }}
-      >
+      {product.description && (
+        <p style={styles.description}>{product.description}</p>
+      )}
+
+      <div style={styles.cardWrapper}>
+        <ProductCard product={product} />
+      </div>
+
+      <section style={styles.sellerBox}>
         <h2>Seller Info</h2>
         <p>
-          <strong>{product.seller.name}</strong>
+          <strong>{product.seller?.name}</strong>
         </p>
-        <p>{product.seller.bio ?? "No bio available."}</p>
+        <p>{product.seller?.bio ?? "No bio available."}</p>
       </section>
 
-      {/* Reviews */}
-      <section style={{ marginTop: "40px" }}>
-        <h2>Reviews</h2>
-        {product.reviews && product.reviews.length > 0 ? (
-          product.reviews.map((review: Review, idx: number) => (
-            <div
-              key={idx}
-              style={{
-                borderBottom: "1px solid #ccc",
-                padding: "10px 0",
-              }}
-            >
-              <p>
-                <strong>{review.user}</strong> ⭐ {review.rating}
-              </p>
-              <p>{review.comment}</p>
-            </div>
-          ))
-        ) : (
-          <p>No reviews yet.</p>
-        )}
-      </section>
+      <ProductReviews productId={String(product.id)} />
     </div>
   );
 }
+
+const styles: { [key: string]: React.CSSProperties } = {
+  container: {
+    padding: "20px",
+    fontFamily: "Arial",
+    maxWidth: "900px",
+    margin: "0 auto",
+  },
+  title: { fontSize: "28px", marginBottom: "10px" },
+  description: { fontSize: "16px", marginBottom: "20px" },
+  cardWrapper: { width: "100%", maxWidth: "350px" },
+  sellerBox: {
+    marginTop: "40px",
+    padding: "20px",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    backgroundColor: "#f9f9f9",
+  },
+};
