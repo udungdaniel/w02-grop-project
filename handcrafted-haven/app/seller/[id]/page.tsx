@@ -8,10 +8,10 @@ interface SellerPageProps {
 }
 
 const SellerDetails: React.FC<SellerPageProps> = ({ params }) => {
-  const sellerId = params.id; // keep as string
+  const sellerId = Number(params.id);
 
-  // Find seller (match by name or convert logic if needed)
-  const seller = sellers.find((s) => s.name === sellerId);
+  // Find seller
+  const seller = sellers.find((s) => s.id === sellerId);
 
   if (!seller) {
     return (
@@ -21,7 +21,7 @@ const SellerDetails: React.FC<SellerPageProps> = ({ params }) => {
     );
   }
 
-  // Filter seller products
+  // FIX: compare string to string (NOT number)
   const sellerProducts = products.filter(
     (product) => product.seller.name === seller.name
   );
