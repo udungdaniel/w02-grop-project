@@ -1,14 +1,7 @@
-// app/data/products.ts
-
 export interface Review {
   user: string;
   rating: number;
   comment: string;
-}
-
-export interface Seller {
-  name: string;
-  bio?: string;
 }
 
 export interface Product {
@@ -16,18 +9,21 @@ export interface Product {
   name: string;
   price: number;
   description?: string;
-  seller: Seller;
+  sellerId: string; 
+  category?: string;
+  image?: string;
   reviews?: Review[];
 }
 
-// Default products
+// Default products (ALL FIXED TO STRING IDs)
 export const products: Product[] = [
   {
     id: "1",
     name: "Handmade Necklace",
     price: 25,
     description: "A beautiful handmade necklace crafted with care.",
-    seller: { name: "Alice Artisan", bio: "Crafting jewelry for over 10 years." },
+    sellerId: "1",
+    category: "Jewelry",
     reviews: [
       { user: "John", rating: 5, comment: "Absolutely love it!" },
       { user: "Mary", rating: 4, comment: "Great quality." },
@@ -38,7 +34,8 @@ export const products: Product[] = [
     name: "Wooden Bowl",
     price: 40,
     description: "Hand-carved wooden bowl, perfect for kitchen or decor.",
-    seller: { name: "Bob Carpenter", bio: "Specializes in handmade wooden items." },
+    sellerId: "2",
+    category: "Woodwork",
     reviews: [],
   },
   {
@@ -46,7 +43,8 @@ export const products: Product[] = [
     name: "Beaded Bracelet",
     price: 15,
     description: "Colorful beaded bracelet made with love.",
-    seller: { name: "Clara Beads", bio: "Jewelry artisan using traditional techniques." },
+    sellerId: "3",
+    category: "Jewelry",
     reviews: [{ user: "Anna", rating: 5, comment: "Lovely bracelet!" }],
   },
   {
@@ -54,7 +52,8 @@ export const products: Product[] = [
     name: "Ceramic Mug",
     price: 22,
     description: "Hand-painted ceramic mug for your morning coffee.",
-    seller: { name: "David Potter", bio: "Ceramic artist crafting functional art pieces." },
+    category: "Pottery",
+    sellerId: "4",
     reviews: [],
   },
 ];

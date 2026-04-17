@@ -1,5 +1,5 @@
 // app/page.tsx
-import { products } from "../data/products";
+import { products } from "./data/products";
 import ProductCard from "../components/ProductCard";
 
 export default function Home() {

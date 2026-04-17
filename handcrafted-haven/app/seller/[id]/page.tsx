@@ -1,17 +1,51 @@
-import React from "react";
-import { sellers } from "../../data/sellers";
-import { products } from "../../data/products";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { sellers as defaultSellers } from "../../data/sellers";
+import { products as defaultProducts } from "../../data/products";
 import ProductCard from "../../../components/ProductCard";
 
-interface SellerPageProps {
-  params: { id: string };
+interface Seller {
+  id: string;
+  name: string;
+  bio: string;
+  image: string;
+  craft?: string;
+  location?: string;
 }
 
-const SellerDetails: React.FC<SellerPageProps> = ({ params }) => {
-  const sellerId = Number(params.id);
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  sellerId: string;
+  image?: string;
+  description?: string;
+}
 
-  // Find seller
-  const seller = sellers.find((s) => s.id === sellerId);
+
+const SellerDetails = ({ sellerId }: { sellerId: string }) => {
+  const [sellers, setSellers] = useState<Seller[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [bioInput, setBioInput] = useState("");
+
+  // Load data
+  useEffect(() => {
+    const storedSellers = JSON.parse(localStorage.getItem("sellers") || "[]");
+    const storedProducts = JSON.parse(localStorage.getItem("products") || "[]");
+
+    setSellers(storedSellers.length ? storedSellers : defaultSellers);
+    setProducts([...defaultProducts, ...storedProducts]);
+  }, []);
+
+  const seller = sellers.find((s) => String(s.id) === sellerId);
+
+  useEffect(() => {
+    if (seller) {
+      setBioInput(seller.bio || "");
+    }
+  }, [seller]);
 
   if (!seller) {
     return (
@@ -21,45 +55,63 @@ const SellerDetails: React.FC<SellerPageProps> = ({ params }) => {
     );
   }
 
-  // FIX: compare string to string (NOT number)
   const sellerProducts = products.filter(
-    (product) => product.seller.name === seller.name
+    (p) => String(p.sellerId) === sellerId
   );
 
+  const handleSaveBio = () => {
+    const updated = sellers.map((s) =>
+      String(s.id) === sellerId ? { ...s, bio: bioInput } : s
+    );
+
+    setSellers(updated);
+    localStorage.setItem("sellers", JSON.stringify(updated));
+    setIsEditing(false);
+  };
+
   return (
-    <div style={{ padding: "30px" }}>
-      {/* Seller Profile */}
-      <h1>{seller.name}</h1>
+    <div style={{ padding: "30px", maxWidth: "1000px", margin: "auto" }}>
+      {/* Seller Info */}
+      <div style={{ textAlign: "center", marginBottom: "40px" }}>
+        <img
+          src={seller.image}
+          style={{
+            width: "120px",
+            height: "120px",
+            borderRadius: "50%",
+          }}
+        />
 
-      <img
-        src={seller.image}
-        alt={seller.name}
-        style={{ width: "200px", borderRadius: "10px" }}
-      />
+        <h1>{seller.name}</h1>
 
-      <h3>{seller.craft}</h3>
-      <p>{seller.bio}</p>
+        <h3>{seller.craft || "Seller"}</h3>
 
-      <p>
-        <strong>Location:</strong> {seller.location}
-      </p>
+        {isEditing ? (
+          <>
+            <textarea
+              value={bioInput}
+              onChange={(e) => setBioInput(e.target.value)}
+              style={{ width: "100%", maxWidth: "500px" }}
+            />
 
-      {/* Seller Products */}
-      <h2 style={{ marginTop: "40px" }}>
-        Products by {seller.name}
-      </h2>
+            <button onClick={handleSaveBio}>Save</button>
+            <button onClick={() => setIsEditing(false)}>Cancel</button>
+          </>
+        ) : (
+          <>
+            <p>{seller.bio || "No bio yet"}</p>
+            <button onClick={() => setIsEditing(true)}>Edit Bio</button>
+          </>
+        )}
+      </div>
+
+      {/* Products */}
+      <h2>Products by {seller.name}</h2>
 
       {sellerProducts.length === 0 ? (
-        <p>No products added yet.</p>
+        <p>No products yet</p>
       ) : (
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "20px",
-            marginTop: "20px",
-          }}
-        >
+        <div style={{ display: "grid", gap: "20px" }}>
           {sellerProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

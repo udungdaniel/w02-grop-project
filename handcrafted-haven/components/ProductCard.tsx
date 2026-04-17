@@ -1,42 +1,48 @@
 import React from "react";
 import Link from "next/link";
+import { Product } from "../app/data/products"; // ✅ use shared type
 
-interface Product {
-  id: string | number;
+interface Seller {
+  id: string;
   name: string;
-  price: number;
-  image?: string;
-  description?: string;
-  seller?: { name: string; bio?: string };
+  bio?: string;
 }
 
 interface ProductCardProps {
-  product: Product; // required now
+  product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const sellers: Seller[] =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("sellers") || "[]")
+      : [];
+
+  const seller = sellers.find((s) => s.id === product.sellerId);
+
   return (
     <div style={cardStyle}>
-      {/* Product Image */}
       {product.image && (
         <img src={product.image} alt={product.name} style={imageStyle} />
       )}
 
       <div style={contentStyle}>
-        <h3 style={{ margin: "5px 0" }}>{product.name}</h3>
+        <h3>{product.name}</h3>
 
-        <p style={{ fontWeight: "bold", margin: "5px 0" }}>
-          ${product.price}
+        <p style={{ fontWeight: "bold" }}>₦{product.price}</p>
+
+        <p style={{ fontSize: "14px", color: "#777" }}>
+          Seller: {seller?.name || "Unknown Seller"}
         </p>
 
-        {product.seller && (
-          <p style={{ fontSize: "14px", color: "#777", margin: "5px 0" }}>
-            Seller: {product.seller.name}
-          </p>
-        )}
+        <p style={{ fontSize: "13px", color: "#999" }}>
+          {seller?.bio || "No bio information available"}
+        </p>
 
         {product.description && (
-          <p style={descriptionStyle}>{product.description.slice(0, 80)}...</p>
+          <p style={descriptionStyle}>
+            {product.description.slice(0, 80)}...
+          </p>
         )}
 
         <Link href={`/products/${product.id}`} style={linkStyle}>
@@ -58,9 +64,6 @@ const cardStyle: React.CSSProperties = {
   background: "#fff",
   display: "flex",
   flexDirection: "column",
-  justifyContent: "space-between",
-  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-  width: "100%",
 };
 
 const imageStyle: React.CSSProperties = {

@@ -9,6 +9,7 @@ interface Product {
   description: string;
   image?: string;
   category: string;
+  sellerId?: string | number;
   seller?: { name: string; email: string }; // added seller info
 }
 
@@ -50,18 +51,22 @@ export default function SellerProductsPage() {
     const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser") || "{}");
     if (!loggedInUser.name) { alert("You must be logged in to add products"); return; }
 
-    const newProd: Product = {
-      id: Date.now(),
-      name,
-      price: Number(price),
-      description,
-      image:image||"",
-      category,
-      seller: {
-        name: loggedInUser.name,
-        email: loggedInUser.email
-      }
-    };
+    // Update this part in your addProduct function
+const newProd: Product = {
+  id: Date.now(),
+  name,
+  price: Number(price),
+  description,
+  image: image || "",
+  category,
+  // Add this line so ProductDetails can find the seller
+  sellerId: loggedInUser.id || loggedInUser.email, 
+  seller: {
+    name: loggedInUser.name,
+    email: loggedInUser.email
+  }
+};
+
 
     saveProducts([...products,newProd]);
     resetForm();
@@ -93,7 +98,7 @@ export default function SellerProductsPage() {
 
   return (
     <div style={{padding:"20px", fontFamily:"Arial"}}>
-      <h1>Manage Products</h1>
+      <h1>Manage Your Products</h1>
 
       <form onSubmit={editingId?updateProduct:addProduct} style={{marginBottom:"30px"}}>
         <input type="text" placeholder="Name" value={name} onChange={e=>setName(e.target.value)} style={inputStyle} required/>
@@ -101,6 +106,9 @@ export default function SellerProductsPage() {
         <textarea placeholder="Description" value={description} onChange={e=>setDescription(e.target.value)} style={textareaStyle} required/>
         <select value={category} onChange={e=>setCategory(e.target.value)} style={inputStyle}>
           <option>Jewelry</option>
+          <option>Woodwork</option>
+          <option>Textiles</option>
+          <option>Pottery</option>
           <option>Clothing</option>
           <option>Home Decor</option>
           <option>Art</option>

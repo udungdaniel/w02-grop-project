@@ -5,33 +5,76 @@ import { useParams } from "next/navigation";
 import { products as defaultProducts, Product } from "../../data/products";
 import ProductCard from "../../../components/ProductCard";
 import ProductReviews from "@/components/ProductReviews";
+import { sellers as staticSellers } from "../../data/sellers";
+
+interface Seller {
+  id: string | number;
+  name: string;
+  bio?: string;
+  image?: string;
+}
 
 export default function ProductDetails() {
   const params = useParams();
   const productId = params?.id;
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [seller, setSeller] = useState<Seller | null>(null);
 
   useEffect(() => {
     if (!productId) return;
 
-    // Load products added by sellers from localStorage
+    // -------------------------------
+    // LOAD PRODUCTS (local + default)
+    // -------------------------------
     const storedProducts = localStorage.getItem("products");
     let sellerProducts: Product[] = [];
+
     if (storedProducts) {
       try {
         sellerProducts = JSON.parse(storedProducts);
       } catch (err) {
-        console.error("Error parsing localStorage products:", err);
+        console.error("Error parsing products:", err);
       }
     }
 
-    // Merge default + seller products
     const allProducts = [...defaultProducts, ...sellerProducts];
 
-    // Find product by id
-    const found = allProducts.find((p) => String(p.id) === String(productId));
-    setProduct(found || null);
+    const foundProduct = allProducts.find(
+      (p) => String(p.id) === String(productId)
+    );
+
+    if (!foundProduct) {
+      setProduct(null);
+      return;
+    }
+
+    setProduct(foundProduct);
+
+    // -------------------------------
+    // LOAD SELLERS (local + static)
+    // -------------------------------
+    const storedSellers = localStorage.getItem("sellers");
+    let dynamicSellers: Seller[] = [];
+
+    if (storedSellers) {
+      try {
+        dynamicSellers = JSON.parse(storedSellers);
+      } catch (err) {
+        console.error("Error parsing sellers:", err);
+      }
+    }
+
+    const allSellers: Seller[] = [
+      ...staticSellers,
+      ...dynamicSellers,
+    ];
+
+    const foundSeller = allSellers.find(
+      (s) => String(s.id) === String(foundProduct.sellerId)
+    );
+
+    setSeller(foundSeller || null);
   }, [productId]);
 
   if (!product) {
@@ -54,12 +97,22 @@ export default function ProductDetails() {
         <ProductCard product={product} />
       </div>
 
+      {/* SELLER SECTION */}
       <section style={styles.sellerBox}>
         <h2>Seller Info</h2>
-        <p>
-          <strong>{product.seller?.name}</strong>
-        </p>
-        <p>{product.seller?.bio ?? "No bio available."}</p>
+
+        {seller ? (
+          <>
+            <p>
+              <strong>{seller.name}</strong>
+            </p>
+            <p>{seller.bio || "No bio available"}</p>
+          </>
+        ) : (
+          <p style={{ color: "red" }}>
+            Seller not found (check sellerId mapping)
+          </p>
+        )}
       </section>
 
       <ProductReviews productId={String(product.id)} />
